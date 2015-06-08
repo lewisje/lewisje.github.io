@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Testing LazyLoad</title>
+<script type="text/javascript" src="https://raw.githubusercontent.com/lewisje/lazyload/master/lazyload.js"></script>
+<script type="text/javascript" defer="defer">
+LazyLoad.js('https://cdn.jsdelivr.net/polyfills/polyfill.js-clsls,mtchs', function (lol) {
+  'use strict';
+  document.getElementById('type_of').innerHTML = 'typeof Set = ' + typeof Set + '; typeof this = ' +
+    typeof this + '; typeof argument = ' + typeof lol;
+}, window, 'lol');
+</script>
+</head>
+<body>
+<p id="type_of"></p>
+</body>
+</html>
