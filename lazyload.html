@@ -3,15 +3,17 @@
 <head>
 <title>Testing LazyLoad</title>
 <script type="text/javascript" src="//rawgit.com/lewisje/lazyload/master/lazyload.js"></script>
-<script type="text/javascript" defer="defer">
+<script type="text/javascript" defer="defer"><!--//--><![CDATA[//><!--
+document.getElementById('old_type').innerHTML = 'Before: typeof Set = ' + typeof Set + '; typeof this = ' +
+  typeof this + '; typeof argument = ' + typeof lol;
 LazyLoad.js('https://cdn.jsdelivr.net/polyfills/polyfill.js-clsls,mtchs', function (lol) {
   'use strict';
-  document.getElementById('type_of').innerHTML = 'typeof Set = ' + typeof Set + '; typeof this = ' +
+  document.getElementById('type_of').innerHTML = 'After: typeof Set = ' + typeof Set + '; typeof this = ' +
     typeof this + '; typeof argument = ' + typeof lol;
-}, window, 'lol');
-</script>
+}, 'lol', alert);//--><!]]></script>
 </head>
 <body>
-<p id="type_of"></p>
+  <p id="old_type"></p>
+  <p id="type_of"></p>
 </body>
 </html>
