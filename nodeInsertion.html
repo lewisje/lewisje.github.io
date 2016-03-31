@@ -81,7 +81,9 @@ function listener() {
   return counter.innerHTML = Number(counter.innerHTML) + 1;
 }
 function append() {
-  return list.appendChild(document.createElement('li').appendChild(document.createTextNode('lol')));
+  var li = document.createElement('li');
+  li.appendChild(document.createTextNode('lol'));
+  return list.appendChild(li);
 }
 function clearTimer() {
   if (timer) clearInterval(timer);
