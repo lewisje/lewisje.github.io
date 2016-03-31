@@ -18,7 +18,7 @@ var animName = ('node_' + Math.random() + '_inserted').split('.').join(''), shee
   // Add a media (and/or media query) here if you'd like!
   // style.setAttribute('media', 'screen')
   // style.setAttribute('media', 'only screen and (max-width : 1024px)')
-  style.appendChild(document.createTextNode([/*'@-o-','@-moz-', '@-webkit-',*/ '@', ''].join('keyframes ' +
+  style.appendChild(document.createTextNode(['@-o-','@-moz-', '@-webkit-', '@', ''].join('keyframes ' +
     animName + ' {\n  from {opacity: 0.99;}\n  to {opacity: 1;}\n}\n')));
   document.head.appendChild(style);
   return style.sheet;
@@ -31,7 +31,7 @@ var animName = ('node_' + Math.random() + '_inserted').split('.').join(''), shee
   };
   else addCSSRule = noop;
   return addCSSRule(sheet, selector, rules, index);
-}, animEvents = [/*'oAnimationStart','mozAnimationstart', 'MSAnimationStart', 'webkitAnimationStart',*/ 'animationstart'], alen = animEvents.length,
+}, animEvents = ['oAnimationStart','mozAnimationstart', 'MSAnimationStart', 'webkitAnimationStart', 'animationstart'], alen = animEvents.length,
   listeners = [], canDelete = typeof sheet.deleteRule === 'function', prefixes = ['-o-', '-moz-', '-webkit-', '', ''],
   insertionAnim = prefixes.join('animation-duration: 0.001s;') + prefixes.join('animation-name: ' + animName + ';');
 
@@ -60,7 +60,7 @@ result.add = function add(func, sel, desc) {
     };
   listeners.push({func: wrapped, sel: s, desc: d});
   while (i--) for (j = alen; j--;) console.log(++count + ' | addition'), addition(i, j);
-  for (i = 0; i < len;) if (checkRule(rules, selector, i)) return listeners.length;
+  //for (i = 0; i < len;) if (checkRule(rules, selector, i)) return listeners.length;
   addCSSRule(sheet, selector, insertionAnim, 0);
   return listeners.length;
 };
