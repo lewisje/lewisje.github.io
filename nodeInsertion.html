@@ -98,7 +98,7 @@ document.getElementById('start').addEventListener('click', function () {
 }, false);
 document.getElementById('stop').addEventListener('click', clearTimer, false);
 document.getElementById('add').addEventListener('click', function () {
-  if (!listenId) wrapped = nodeInsertion.add(listener, '#list', 'li');
+  if (!listenId) listenId = nodeInsertion.add(listener, '#list', 'li');
 }, false);
 document.getElementById('remove').addEventListener('click', stopListening, false);
 document.getElementById('reset').addEventListener('click', function () {
