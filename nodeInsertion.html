@@ -56,7 +56,7 @@ result.add = function add(func, sel, desc) {
   listeners.push({func: wrapped, sel: s, desc: d});
   while (i--) while (j--) elts[i].addEventListener(animEvents[j], wrapped, false);
   for (i = rules.length; i--;) if (checkRule(rules, selector, i)) return listeners.length;
-  addCSSRule(sheet, selector, insertionAnim, -1);
+  addCSSRule(sheet, selector, insertionAnim, 0);
   return listeners.length;
 };
 
