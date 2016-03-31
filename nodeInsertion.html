@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Testing nodeInsertion</title>
-<script type="text/javascript" defer="defer"><!--//--><![CDATA[//><!--
+<script type="text/javascript"><!--//--><![CDATA[//><!--
 var nodeInsertion = (function (document, undefined) {
 'use strict';
 function noop() {}
@@ -73,7 +73,7 @@ result.remove = function remove(index) {
 };
 return result;
 })(document);
-(function (document, undefined) {
+window.addEventListener('DOMContentLoaded', function () {
 'use strict';
 if (typeof window.addEventListener !== 'function') throw new TypeError('This demonstration requires a newer browser');
 var counter = document.getElementById('counter'), list = document.getElementById('list'), timer = null, listenId = null;
@@ -105,7 +105,7 @@ document.getElementById('reset').addEventListener('click', function () {
   counter.innerHTML = 0;
   list.innerHTML = '';
 }, false);
-})(document);//--><!]]></script>
+}, false);//--><!]]></script>
 </head>
 <body>
   <button id="start">Start</button>
