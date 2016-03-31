@@ -2,9 +2,78 @@
 <html>
 <head>
 <title>Testing nodeInsertion</title>
-<script type="text/javascript" src="https://gist.githubusercontent.com/lewisje/55f210b6097cb5de65831168c43c42df/raw/dd74d5eb350db6971491923e93014a29e0a161a0/nodeInsertion.js"></script>
 <script type="text/javascript" defer="defer"><!--//--><![CDATA[//><!--
-(function () {
+var nodeInsertion = (function (document, undefined) {
+'use strict';
+function noop() {}
+var result = {add: noop, remove: noop};
+
+// Every browser that supports animations also has String#trim
+if (typeof String.prototype.trim !== 'function') return result;
+
+// a stylesheet that holds our special keyframe code: https://davidwalsh.name/add-rules-stylesheets
+var animName = 'node$' + Math.random() + '$inserted', sheet = (function () {
+  var style = document.createElement('style');
+
+  // Add a media (and/or media query) here if you'd like!
+  // style.setAttribute('media', 'screen')
+  // style.setAttribute('media', 'only screen and (max-width : 1024px)')
+  style.appendChild(document.createTextNode(['@-moz-', '@-webkit-', '@', ''].join('keyframes ' +
+    animName + ' {\n  from {opacity: 0.99;}\n  to {opacity: 1;}\n}\n')));
+  document.head.appendChild(style);
+  return style.sheet;
+})(), addCSSRule = function (sheet, selector, rules, index) {
+  if (typeof sheet.insertRule === 'function') addCSSRule = function addCSSRule(sheet, selector, rules, index) {
+    return sheet.insertRule(selector + '{' + rules + '}', index);
+  };
+  else if (typeof sheet.addRule === 'function') addCSSRule = function addCSSRule(sheet, selector, rules, index) {
+    return sheet.addRule(selector, rules, index);
+  };
+  else addCSSRule = noop;
+  return addCSSRule(sheet, selector, rules, index);
+}, animEvents = ['mozAnimationstart', 'MSAnimationStart', 'webkitAnimationStart', 'animationstart'], alen = animEvents.length,
+  listeners = [], canDelete = typeof sheet.deleteRule === 'function', prefixes = ['-moz-', '-webkit-', '', ''],
+  insertionAnim = prefixes.join('animation-duration: 0.001s;') + prefixes.join('animation-name: ' + animName + ';');
+
+if (addCSSRule === noop) return result;
+
+function checkRule(rules, selector, index) {
+  return index in rules && rules[index].cssText.split('{')[0].indexOf(selector) !== -1;
+}
+function defaultSel(sel, def) {
+  return typeof sel !== 'string' ? def : sel.trim() || def;
+}
+
+// listens solely for new direct descendants
+// returns index to be passed into the `remove` method
+result.add = function add(func, sel, desc) {
+  if (typeof func !== 'function') throw new TypeError('A function must be passed in');
+  var s = defaultSel(sel, 'body'), d = defaultSel(desc, '*'), elts = document.querySelectorAll(s), i = elts.length,
+    j = alen, rules = sheet.cssRules, selector = s + ' > ' + d, wrapped = function wrapped(e) {
+    var evt = e || event;
+    if (evt.animationName === animName) return func.call(this, evt);
+  };
+  listeners.push({func: wrapped, sel: s, desc: d});
+  while (i--) while (j--) elts[i].addEventListener(animEvents[j], wrapped, false);
+  for (i = rules.length; i--;) if (checkRule(rules, selector, i)) return listeners.length;
+  addCSSRule(sheet, selector, insertionAnim, -1);
+  return listeners.length;
+};
+
+result.remove = function remove(index) {
+  if (!((index - 1) in listeners) || !listeners[index - 1]) return;
+  var listener = listeners[index - 1], func = listener.func, s = listener.sel,
+    elts = document.querySelectorAll(s), i = elts.length, j = alen;
+  while (i--) while (j--) elts[i].removeEventListener(animEvents[j], func, false);
+  if (canDelete) {
+    var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc;
+    for (i = rules.length; i--;) if (checkRule(rules, selector, i)) sheet.deleteRule(i);
+  }
+  listeners[index - 1] = null;
+};
+return result;
+})(document);
+(function (document, undefined) {
 'use strict';
 if (typeof window.addEventListener !== 'function') throw new TypeError('This demonstration requires a newer browser');
 var counter = document.getElementById('counter'), list = document.getElementById('list'), timer = null, listenId = null;
@@ -36,7 +105,7 @@ document.getElementById('reset').addEventListener('click', function () {
   counter.innerHTML = 0;
   list.innerHTML = '';
 }, false);
-})();//--><!]]></script>
+})(document);//--><!]]></script>
 </head>
 <body>
   <button id="start">Start</button>
