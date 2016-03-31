@@ -90,7 +90,9 @@ function clearTimer() {
   timer = null;
 }
 function stopListening() {
+  console.log(listenId);
   if (listenId) nodeInsertion.remove(listenId);
+  console.log('stopped');
   listenId = null;
 }
 document.getElementById('start').addEventListener('click', function () {
