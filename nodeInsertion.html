@@ -12,7 +12,7 @@ var result = {add: noop, remove: noop};
 if (typeof String.prototype.trim !== 'function') return result;
 
 // a stylesheet that holds our special keyframe code: https://davidwalsh.name/add-rules-stylesheets
-var animName = 'node$' + Math.random() + '$inserted', sheet = (function () {
+var animName = ('node_' + Math.random() + '_inserted').split('0.').join(''), sheet = (function () {
   var style = document.createElement('style');
 
   // Add a media (and/or media query) here if you'd like!
