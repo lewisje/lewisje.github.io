@@ -49,13 +49,13 @@ function defaultSel(sel, def) {
 result.add = function add(func, sel, desc) {
   if (typeof func !== 'function') throw new TypeError('A function must be passed in');
   var s = defaultSel(sel, 'body'), d = defaultSel(desc, '*'), elts = document.querySelectorAll(s), i = elts.length,
-    j = alen, rules = sheet.cssRules, selector = s + ' > ' + d, wrapped = function wrapped(e) {
+    j = alen, rules = sheet.cssRules, len = rules.length, selector = s + ' > ' + d, wrapped = function wrapped(e) {
     var evt = e || event;
     if (evt.animationName === animName) return func.call(this, evt);
   };
   listeners.push({func: wrapped, sel: s, desc: d});
   while (i--) while (j--) elts[i].addEventListener(animEvents[j], wrapped, false);
-  for (i = rules.length; i--;) if (checkRule(rules, selector, i)) return listeners.length;
+  for (i = 0; i < len;) if (checkRule(rules, selector, i)) return listeners.length;
   addCSSRule(sheet, selector, insertionAnim, 0);
   return listeners.length;
 };
@@ -66,8 +66,8 @@ result.remove = function remove(index) {
     elts = document.querySelectorAll(s), i = elts.length, j = alen;
   while (i--) while (j--) elts[i].removeEventListener(animEvents[j], func, false);
   if (canDelete) {
-    var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc;
-    for (i = rules.length; i--;) if (checkRule(rules, selector, i)) sheet.deleteRule(i);
+    var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc, len = rules.length;
+    for (i = 0; i < len;) if (checkRule(rules, selector, i)) sheet.deleteRule(i);
   }
   listeners[index - 1] = null;
 };
