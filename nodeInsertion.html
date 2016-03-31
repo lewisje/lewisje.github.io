@@ -51,14 +51,14 @@ result.add = function add(func, sel, desc) {
   var s = defaultSel(sel, 'body'), d = defaultSel(desc, '*'), elts = document.querySelectorAll(s), i = elts.length,
     j = alen, rules = sheet.cssRules, len = rules.length, selector = s + ' > ' + d, wrapped = function wrapped(e) {
       var evt = e || event;
-      if (evt.animationName === animName) return func.call(this, evt);
+      if (evt.animationName === animName) return console.log('started'), func.call(this, evt);
     }, count = 0, addition = function addition(i, j) {
       setTimeout(function () {
         elts[i].addEventListener(animEvents[j], wrapped, false);
       }, 0);
     };
   listeners.push({func: wrapped, sel: s, desc: d});
-  while (i--) while (j--) console.log(++count + 'addition'), addition(i, j);
+  while (i--) while (j--) console.log(++count + ' | addition'), addition(i, j);
   for (i = 0; i < len;) if (checkRule(rules, selector, i)) return listeners.length;
   addCSSRule(sheet, selector, insertionAnim, 0);
   return listeners.length;
@@ -73,7 +73,7 @@ result.remove = function remove(index) {
         elts[i].removeEventListener(animEvents[j], func, false);
       }, 0);
     };
-  while (i--) while (j--) console.log(++count + 'removal'), removal(i, j);
+  while (i--) while (j--) console.log(++count + ' | removal'), removal(i, j);
   if (canDelete) {
     var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc, len = rules.length,
       deletion = function deletion(i) {
@@ -81,7 +81,7 @@ result.remove = function remove(index) {
           if (checkRule(rules, selector, i)) sheet.deleteRule(i);
         }, 0);
       };
-    for (i = 0; i < len;) console.log(++count + 'deletion'), deletion(i);
+    for (i = 0; i < len;) console.log(++count + ' | deletion'), deletion(i);
   }
   listeners[index - 1] = null;
 };
