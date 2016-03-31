@@ -39,7 +39,7 @@ if (addCSSRule === noop) return result;
 console.log(insertionAnim);
 
 function checkRule(rules, selector, index) {
-  return index in rules && rules[index].cssText.split('{')[0].indexOf(selector) !== -1;
+  return index in rules && (rules[index].cssText + '').split('{')[0].indexOf(selector) !== -1;
 }
 function defaultSel(sel, def) {
   return typeof sel !== 'string' ? def : sel.trim() || def;
@@ -60,7 +60,7 @@ result.add = function add(func, sel, desc) {
     };
   listeners.push({func: wrapped, sel: s, desc: d});
   while (i--) for (j = alen; j--;) console.log(++count + ' | addition'), addition(i, j);
-  //for (i = 0; i < len;) if (checkRule(rules, selector, i)) return listeners.length;
+  for (i = 0; i < len;) if (checkRule(rules, selector, i)) return listeners.length;
   addCSSRule(sheet, selector, insertionAnim, 0);
   return listeners.length;
 };
