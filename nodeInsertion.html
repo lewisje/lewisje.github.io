@@ -3,21 +3,16 @@
 <head>
 <title>Testing nodeInsertion</title>
 <script type="text/javascript"><!--//--><![CDATA[//><!--
+if (typeof window.addEventListener !== 'function') throw new TypeError('This demonstration requires a newer browser');
 var nodeInsertion = (function (document, undefined) {
 'use strict';
 function noop() {}
 var result = {add: noop, remove: noop};
-
-// Every browser that supports animations also has String#trim
-if (typeof String.prototype.trim !== 'function') return result;
+if (typeof String.prototype.trim !== 'function') return result; // Every browser that supports animations also has String#trim
 
 // a stylesheet that holds our special keyframe code: https://davidwalsh.name/add-rules-stylesheets
 var animName = ('node_' + Math.random() + '_inserted').split('.').join(''), sheet = (function () {
   var style = document.createElement('style');
-
-  // Add a media (and/or media query) here if you'd like!
-  // style.setAttribute('media', 'screen')
-  // style.setAttribute('media', 'only screen and (max-width : 1024px)')
   style.appendChild(document.createTextNode(['@-o-','@-moz-', '@-webkit-', '@', ''].join('keyframes ' +
     animName + ' {\n  from {opacity: 0.99;}\n  to {opacity: 1;}\n}\n')));
   document.head.appendChild(style);
@@ -38,15 +33,13 @@ var animName = ('node_' + Math.random() + '_inserted').split('.').join(''), shee
 
 if (addCSSRule === noop) return result;
 
-function checkRule(rules, selector, index) {
-  return index in rules && rules[index].cssText.split('{')[0].indexOf(selector) !== -1;
-}
-function defaultSel(sel, def) {
-  return typeof sel !== 'string' ? def : sel.trim() || def;
-}
+var checkRule = function checkRule(rules, selector, index) {
+    return index in rules && rules[index].cssText.split('{')[0].indexOf(selector) !== -1;
+  }, defaultSel = function defaultSel(sel, def) {
+    return typeof sel !== 'string' ? def : sel.trim() || def;
+  };
 
-// listens solely for new direct descendants
-// returns index to be passed into the `remove` method
+// listens solely for new direct descendants, returns index to be passed into the `remove` method
 result.add = function add(func, sel, desc) {
   if (typeof func !== 'function') throw new TypeError('A function must be passed in');
   var s = defaultSel(sel, 'body'), d = defaultSel(desc, '*'), elts = document.querySelectorAll(s), i = elts.length,
@@ -76,17 +69,12 @@ result.remove = function remove(index) {
       for (j = alen; j--;) elts[i].removeEventListener(animEvents[j], func, false);
     }
   }
-  if (false && canDelete) { // marked for removal
-    var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc;
-    for (i = rules.length; i--;) if (checkRule(rules, selector, i)) sheet.deleteRule(i);
-  }
-  listeners.splice(index - 1);
+  listeners[index - 1] = null;
 };
 return result;
 })(document);
 window.addEventListener('DOMContentLoaded', function () {
 'use strict';
-if (typeof window.addEventListener !== 'function') throw new TypeError('This demonstration requires a newer browser');
 var counter = document.getElementById('counter'), list = document.getElementById('list'), timer = null, listenId = null;
 function listener() {
   return counter.innerHTML = Number(counter.innerHTML) + 1;
