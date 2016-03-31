@@ -32,8 +32,8 @@ var animName = ('node_' + Math.random() + '_inserted').split('.').join(''), shee
   else addCSSRule = noop;
   return addCSSRule(sheet, selector, rules, index);
 }, animEvents = ['oAnimationStart','mozAnimationstart', 'MSAnimationStart', 'webkitAnimationStart', 'animationstart'],
-  alen = animEvents.length, animEvent = null, listeners = [], canDelete = typeof sheet.deleteRule === 'function',
-  prefixes = ['-o-', '-moz-', '-webkit-', '', ''], insertionAnim = prefixes.join('animation-duration: 0.001s; ') +
+  alen = animEvents.length, prefixes = ['-o-', '-moz-', '-webkit-', '', ''], canDelete = typeof sheet.deleteRule === 'function',
+  animEvent = null, animFound = false, listeners = [], insertionAnim = prefixes.join('animation-duration: 0.001s; ') +
     prefixes.join('animation-name: ' + animName + '; ');
 
 if (addCSSRule === noop) return result;
@@ -70,8 +70,11 @@ result.remove = function remove(index) {
   var listener = listeners[index - 1], func = listener.func, s = listener.sel,
     elts = document.querySelectorAll(s), i = elts.length, count = 0, j;
   while (i--) {
-    if (animEvent) elts[i].removeEventListener(animEvents[j], func, false);
-    else for (j = alen; j--;) console.log(++count + ' | removal'), elts[i].removeEventListener(animEvents[j], func, false);
+    if (animEvent && animFound) elts[i].removeEventListener(animEvent, func, false);
+    else {
+      if (animEvent) animFound = true;
+      for (j = alen; j--;) elts[i].removeEventListener(animEvents[j], func, false);
+    }
   }
   if (canDelete) {
     var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc;
