@@ -98,6 +98,7 @@ function listener() {
 function append() {
   var li = document.createElement('li');
   li.appendChild(document.createTextNode('lol'));
+  console.log('appending');
   return list.appendChild(li);
 }
 function clearTimer() {
