@@ -49,16 +49,16 @@ function defaultSel(sel, def) {
 result.add = function add(func, sel, desc) {
   if (typeof func !== 'function') throw new TypeError('A function must be passed in');
   var s = defaultSel(sel, 'body'), d = defaultSel(desc, '*'), elts = document.querySelectorAll(s), i = elts.length,
-    j = alen, rules = sheet.cssRules, len = rules.length, selector = s + ' > ' + d, wrapped = function wrapped(e) {
+    rules = sheet.cssRules, len = rules.length, selector = s + ' > ' + d, wrapped = function wrapped(e) {
       var evt = e || event;
       if (evt.animationName === animName) return console.log('started'), func.call(this, evt);
-    }, count = 0, addition = function addition(i, j) {
+    }, j, count = 0, addition = function addition(i, j) {
       setTimeout(function () {
         elts[i].addEventListener(animEvents[j], wrapped, false);
       }, 0);
     };
   listeners.push({func: wrapped, sel: s, desc: d});
-  while (i--) while (j--) console.log(++count + ' | addition'), addition(i, j);
+  while (i--) for (j = alen; j--;) console.log(++count + ' | addition'), addition(i, j);
   for (i = 0; i < len;) if (checkRule(rules, selector, i)) return listeners.length;
   addCSSRule(sheet, selector, insertionAnim, 0);
   return listeners.length;
@@ -67,13 +67,13 @@ result.add = function add(func, sel, desc) {
 result.remove = function remove(index) {
   if (!listeners[index - 1]) return;
   var listener = listeners[index - 1], func = listener.func, s = listener.sel,
-    elts = document.querySelectorAll(s), i = elts.length, j = alen, count = 0,
+    elts = document.querySelectorAll(s), i = elts.length, j, count = 0,
     removal = function removal(i, j) {
       setTimeout(function () {
         elts[i].removeEventListener(animEvents[j], func, false);
       }, 0);
     };
-  while (i--) while (j--) console.log(++count + ' | removal'), removal(i, j);
+  while (i--) for (j = alen; j--;) console.log(++count + ' | removal'), removal(i, j);
   if (canDelete) {
     var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc, len = rules.length,
       deletion = function deletion(i) {
