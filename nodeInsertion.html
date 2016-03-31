@@ -76,7 +76,7 @@ result.remove = function remove(index) {
       for (j = alen; j--;) elts[i].removeEventListener(animEvents[j], func, false);
     }
   }
-  if (canDelete) {
+  if (false && canDelete) { // marked for removal
     var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc;
     for (i = rules.length; i--;) if (checkRule(rules, selector, i)) sheet.deleteRule(i);
   }
