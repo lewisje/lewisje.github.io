@@ -50,24 +50,38 @@ result.add = function add(func, sel, desc) {
   if (typeof func !== 'function') throw new TypeError('A function must be passed in');
   var s = defaultSel(sel, 'body'), d = defaultSel(desc, '*'), elts = document.querySelectorAll(s), i = elts.length,
     j = alen, rules = sheet.cssRules, len = rules.length, selector = s + ' > ' + d, wrapped = function wrapped(e) {
-    var evt = e || event;
-    if (evt.animationName === animName) return func.call(this, evt);
-  };
+      var evt = e || event;
+      if (evt.animationName === animName) return func.call(this, evt);
+    }, count = 0, addition = function addition(i, j) {
+      setTimeout(function () {
+        elts[i].addEventListener(animEvents[j], wrapped, false);
+      }, 0);
+    };
   listeners.push({func: wrapped, sel: s, desc: d});
-  while (i--) while (j--) elts[i].addEventListener(animEvents[j], wrapped, false);
+  while (i--) while (j--) console.log(++count + 'addition'), addition(i, j);
   for (i = 0; i < len;) if (checkRule(rules, selector, i)) return listeners.length;
   addCSSRule(sheet, selector, insertionAnim, 0);
   return listeners.length;
 };
 
 result.remove = function remove(index) {
-  if (!((index - 1) in listeners) || !listeners[index - 1]) return;
+  if (!listeners[index - 1]) return;
   var listener = listeners[index - 1], func = listener.func, s = listener.sel,
-    elts = document.querySelectorAll(s), i = elts.length, j = alen;
-  while (i--) while (j--) elts[i].removeEventListener(animEvents[j], func, false);
+    elts = document.querySelectorAll(s), i = elts.length, j = alen, count = 0,
+    removal = function removal(i, j) {
+      setTimeout(function () {
+        elts[i].removeEventListener(animEvents[j], func, false);
+      }, 0);
+    };
+  while (i--) while (j--) console.log(++count + 'removal'), removal(i, j);
   if (canDelete) {
-    var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc, len = rules.length;
-    for (i = 0; i < len;) if (checkRule(rules, selector, i)) sheet.deleteRule(i);
+    var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc, len = rules.length,
+      deletion = function deletion(i) {
+        setTimeout(function () {
+          if (checkRule(rules, selector, i)) sheet.deleteRule(i);
+        }, 0);
+      };
+    for (i = 0; i < len;) console.log(++count + 'deletion'), deletion(i);
   }
   listeners[index - 1] = null;
 };
@@ -100,6 +114,7 @@ document.getElementById('start').addEventListener('click', function () {
 }, false);
 document.getElementById('stop').addEventListener('click', clearTimer, false);
 document.getElementById('add').addEventListener('click', function () {
+  console.log('starting to listen');
   if (!listenId) listenId = nodeInsertion.add(listener, '#list', 'li');
 }, false);
 document.getElementById('remove').addEventListener('click', stopListening, false);
