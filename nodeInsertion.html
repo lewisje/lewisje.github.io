@@ -33,9 +33,10 @@ var animName = ('node_' + Math.random() + '_inserted').split('0.').join(''), she
   return addCSSRule(sheet, selector, rules, index);
 }, animEvents = ['mozAnimationstart', 'MSAnimationStart', 'webkitAnimationStart', 'animationstart'], alen = animEvents.length,
   listeners = [], canDelete = typeof sheet.deleteRule === 'function', prefixes = ['-moz-', '-webkit-', '', ''],
-  insertionAnim = prefixes.join('animation-duration: 0.001s;') + prefixes.join('animation-name: ' + animName + ';');
+  insertionAnim = prefixes.join('animation-duration:0.001s;') + prefixes.join('animation-name:' + animName + ';');
 
 if (addCSSRule === noop) return result;
+console.log(insertionAnim);
 
 function checkRule(rules, selector, index) {
   return index in rules && rules[index].cssText.split('{')[0].indexOf(selector) !== -1;
