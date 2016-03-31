@@ -93,6 +93,7 @@ window.addEventListener('DOMContentLoaded', function () {
 if (typeof window.addEventListener !== 'function') throw new TypeError('This demonstration requires a newer browser');
 var counter = document.getElementById('counter'), list = document.getElementById('list'), timer = null, listenId = null;
 function listener() {
+  console.log('listening');
   return counter.innerHTML = Number(counter.innerHTML) + 1;
 }
 function append() {
