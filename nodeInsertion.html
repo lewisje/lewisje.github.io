@@ -31,12 +31,12 @@ var animName = ('node_' + Math.random() + '_inserted').split('.').join(''), shee
   };
   else addCSSRule = noop;
   return addCSSRule(sheet, selector, rules, index);
-}, animEvents = ['oAnimationStart','mozAnimationstart', 'MSAnimationStart', 'webkitAnimationStart', 'animationstart'], alen = animEvents.length,
-  listeners = [], canDelete = typeof sheet.deleteRule === 'function', prefixes = ['-o-', '-moz-', '-webkit-', '', ''],
-  insertionAnim = prefixes.join('animation-duration: 0.001s;') + prefixes.join('animation-name: ' + animName + ';');
+}, animEvents = ['oAnimationStart','mozAnimationstart', 'MSAnimationStart', 'webkitAnimationStart', 'animationstart'],
+  alen = animEvents.length, animEvent = null, listeners = [], canDelete = typeof sheet.deleteRule === 'function',
+  prefixes = ['-o-', '-moz-', '-webkit-', '', ''], insertionAnim = prefixes.join('animation-duration: 0.001s; ') +
+    prefixes.join('animation-name: ' + animName + '; ');
 
 if (addCSSRule === noop) return result;
-console.log(insertionAnim);
 
 function checkRule(rules, selector, index) {
   return index in rules && rules[index].cssText.split('{')[0].indexOf(selector) !== -1;
@@ -52,39 +52,32 @@ result.add = function add(func, sel, desc) {
   var s = defaultSel(sel, 'body'), d = defaultSel(desc, '*'), elts = document.querySelectorAll(s), i = elts.length,
     rules = sheet.cssRules, len = rules.length, selector = s + ' > ' + d, wrapped = function wrapped(e) {
       var evt = e || event;
-      if (evt.animationName === animName) return console.log('started'), func.call(this, evt);
-    }, j, count = 0, addition = function addition(i, j) {
-      setTimeout(function () {
-        elts[i].addEventListener(animEvents[j], wrapped, false);
-      }, 0);
-    };
+      if (!animEvent) animEvent = evt.type;
+      if (evt.type === animEvent && evt.animationName === animName) return func.call(this, evt);
+    }, count = 0, j;
   listeners.push({func: wrapped, sel: s, desc: d});
-  while (i--) for (j = alen; j--;) console.log(++count + ' | addition'), addition(i, j);
+  while (i--) {
+    if (animEvent) elts[i].addEventListener(animEvent, wrapped, false);
+    else for (j = alen; j--;) elts[i].addEventListener(animEvents[j], wrapped, false);
+  }
   for (i = len; i--;) if (checkRule(rules, selector, i)) return listeners.length;
   addCSSRule(sheet, selector, insertionAnim, len);
   return listeners.length;
 };
 
 result.remove = function remove(index) {
-  if (!listeners[index - 1]) return;
+  if (!((index - 1) in listeners)) return;
   var listener = listeners[index - 1], func = listener.func, s = listener.sel,
-    elts = document.querySelectorAll(s), i = elts.length, j, count = 0,
-    removal = function removal(i, j) {
-      setTimeout(function () {
-        elts[i].removeEventListener(animEvents[j], func, false);
-      }, 0);
-    };
-  while (i--) for (j = alen; j--;) console.log(++count + ' | removal'), removal(i, j);
-  if (canDelete) {
-    var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc,
-      deletion = function deletion(i) {
-        setTimeout(function () {
-          if (checkRule(rules, selector, i)) sheet.deleteRule(i);
-        }, 0);
-      };
-    for (i = rules.length; i--;) console.log(++count + ' | deletion'), deletion(i);
+    elts = document.querySelectorAll(s), i = elts.length, count = 0, j;
+  while (i--) {
+    if (animEvent) elts[i].removeEventListener(animEvents[j], func, false);
+    else for (j = alen; j--;) console.log(++count + ' | removal'), elts[i].removeEventListener(animEvents[j], func, false);
   }
-  listeners[index - 1] = null;
+  if (canDelete) {
+    var rules = sheet.cssRules, selector = s + ' > ' +  listener.desc;
+    for (i = rules.length; i--;) if (checkRule(rules, selector, i)) sheet.deleteRule(i);
+  }
+  listeners.splice(index - 1);
 };
 return result;
 })(document);
@@ -93,13 +86,11 @@ window.addEventListener('DOMContentLoaded', function () {
 if (typeof window.addEventListener !== 'function') throw new TypeError('This demonstration requires a newer browser');
 var counter = document.getElementById('counter'), list = document.getElementById('list'), timer = null, listenId = null;
 function listener() {
-  console.log('listening');
   return counter.innerHTML = Number(counter.innerHTML) + 1;
 }
 function append() {
   var li = document.createElement('li');
   li.appendChild(document.createTextNode('lol'));
-  console.log('appending');
   return list.appendChild(li);
 }
 function clearTimer() {
@@ -107,9 +98,7 @@ function clearTimer() {
   timer = null;
 }
 function stopListening() {
-  console.log(listenId);
   if (listenId) nodeInsertion.remove(listenId);
-  console.log('stopped');
   listenId = null;
 }
 document.getElementById('start').addEventListener('click', function () {
@@ -117,7 +106,6 @@ document.getElementById('start').addEventListener('click', function () {
 }, false);
 document.getElementById('stop').addEventListener('click', clearTimer, false);
 document.getElementById('add').addEventListener('click', function () {
-  console.log('starting to listen');
   if (!listenId) listenId = nodeInsertion.add(listener, '#list', 'li');
 }, false);
 document.getElementById('remove').addEventListener('click', stopListening, false);
