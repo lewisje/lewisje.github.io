@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Testing nodeInsertion</title>
+<script type="text/javascript" src="//gist.github.com/lewisje/55f210b6097cb5de65831168c43c42df.js"></script>
+<script type="text/javascript" defer="defer"><!--//--><![CDATA[//><!--
+(function () {
+'use strict';
+if (typeof window.addEventListener !== 'function') throw new TypeError('This demonstration requires a newer browser');
+var counter = document.getElementById('counter'), list = document.getElementById('list'), timer = null, listenId = null;
+function listener() {
+  return counter.innerHTML = Number(counter.innerHTML) + 1;
+}
+function append() {
+  return list.appendChild(document.createElement('li').appendChild(document.createTextNode('lol')));
+}
+function clearTimer() {
+  if (timer) clearInterval(timer);
+  timer = null;
+}
+function stopListening() {
+  if (listenId) nodeInsertion.remove(listenId);
+  listenId = null;
+}
+document.getElementById('start').addEventListener('click', function () {
+  if (!timer) timer = setInterval(append, 1000);
+}, false);
+document.getElementById('stop').addEventListener('click', clearTimer, false);
+document.getElementById('add').addEventListener('click', function () {
+  if (!listenId) wrapped = nodeInsertion.add(listener, '#list', 'li');
+}, false);
+document.getElementById('remove').addEventListener('click', stopListening, false);
+document.getElementById('reset').addEventListener('click', function () {
+  clearTimer();
+  stopListening();
+  counter.innerHTML = 0;
+  list.innerHTML = '';
+}, false);
+})();//--><!]]></script>
+</head>
+<body>
+  <button id="start">Start</button>
+  <button id="stop">Stop</button>
+  <button id="add">Add Listener</button>
+  <button id="remove">Remove Listener</button>
+  <button id="reset">Reset</button>
+  <p id="counter">0</p>
+  <ul id="list"></ul>
+</body>
+</html>
