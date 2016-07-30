@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script><!--//--><![CDATA[//><!--
+  var local;
+  function localOpen(evt) {
+    var e = evt || window.event || {}, win;
+    if (typeof e.preventDefault === 'function') e.preventDefault();
+    else e.returnValue = false;
+    win = window.open();
+    win.opener = null;
+    win.location = (e.target || e.srcElement || this || e).href;
+    return false;
+  }
+  if (window.opener) window.opener = null;
+  if (typeof document.getElementById === 'function') local = document.getElementById('local');
+  else if (document.all) local = document.all['local'];
+  else if (document.layers) local = document.layers['local'];
+  if (local) {
+    if (typeof window.addEventListener === 'function') local.addEventListener('click', localOpen, false);
+    else if (window.attachEvent) local.attachEvent('onclick', localOpen);
+    else local.onclick = localOpen;
+  }//--><!]]></script>
+</head>
+<body>
+<p>These links will test whether the process-isolation benefits of <code><a href="https://jakearchibald.com/2016/performance-benefits-of-rel-noopener/" rel="noopener noreferrer" target="_blank">rel="noopener"</a></code> exist when the window's <code>opener</code> property is set to <code>null</code>, whether by the opening page or by the opened page.</p>
+<ul>
+  <li><a href="index.html" target="blank">Open a new window without setting <code>rel="noopener"</code> or otherwise modifying the <code>opener</code> property.</a></li>
+  <li><a id="local" href="index.html" target="_blank">Open a new window, first setting its <code>opener</code> property to <code>null</code>.</a></li>
+  <li><a href="#" target="_blank">Open a new window that sets its own <code>opener</code> property to <code>null</code>.</a></li>
+  <li><a href="index.html" rel="noopener noreferrer" target="_blank">Open a new window, setting <code>rel="noopener"</code>.</a></li>
+</ul>
+</body>
+</html>
