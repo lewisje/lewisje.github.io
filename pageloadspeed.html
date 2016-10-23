@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style><!--/*--><![CDATA[/*><!--*/
+body {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+*[disabled] {opacity: 0.5;}
+p {margin: 0.5em 0;}
+p:first-child {margin-top: 0;}
+p:last-child {margin-bottom: 0;}
+#toolbar {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+#toolbar > div:first-of-type {
+  border: 0;
+  border-bottom: 1px solid gray;
+  margin: 0;
+  padding: 4px;
+}
+#page {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  width: 100%;
+}
+#url {width: 25%;}
+#isValid {color: red;}
+#isValid.valid {color: green;}
+#progress {
+  background-color: #eee;
+  border: 0;
+  box-sizing: border-box;
+  display: none;
+  height: 6px;
+  margin: 0;
+  padding: 0;
+  width: 100%
+}
+body.benchmarking #progress {display: block;}
+#progress > div {
+  background-color: blue;
+  height: 100%;
+  width: 0%;
+}/*]]>*/--></style>
+<title>Page-Load Speed Tool</title>
+</head>
+<body>
+<div id="toolbar">
+  <div>
+    <p>URL: <input id="url" type="url">
+      <button id="reload" type="button">Reload</button>
+      <button id="benchmark" type="button" title="Page will automatically reloads until avg result is valid.">Benchmark</button>
+      <button id="stop" type="button" disabled>Stop</button>
+    </p>
+    <p>Average (<span id="isValid">invalid</span>): <span id="avgTime">?</span> ms (<span id="normalCount">?</span>/<span id="totalCount">?</span> iterations)&emsp;
+     Last reload: <span id="lastTime">?</span> ms&emsp;
+      <button id="reset" type="button">Reset</button>&emsp;
+      <a href="http://www.raymondhill.net/ublock/pageloadspeed.html" rel="noopener noreferrer" target="_blank">Info</a>
+    </p>
+  </div>
+  <div id="progress"><div></div></div>
+</div>
+<iframe id="page" src=""></iframe>
+<script><!--//--><![CDATA[//><!--
+(function (w, d, M, D) {
+  var lastURL = '', b = d.body, t = d.getElementById('toolbar'),
+    p = d.getElementById('page'), inputURL = d.getElementById('url'),
+    reload = d.getElementById('reload'), benchmark = d.getElementById('benchmark'),
+    stop = d.getElementById('stop'), reset = d.getElementById('reset'),
+    a = d.createElement('a'),
+    resize = function resize() {
+      var ph = M.max(d.documentElement.clientHeight, w.innerHeight || 0),
+        crect = t.getBoundingClientRect();
+      p.style.setProperty('top', crect.bottom + 'px');
+      p.style.setProperty('height', (ph - crect.height) + 'px');
+    },
+    syncWidgets = function syncWidgets(on) {
+      if (loading) {
+        inputURL.setAttribute('disabled', '');
+        reload.setAttribute('disabled', '');
+        benchmark.setAttribute('disabled', '');
+        stop.removeAttribute('disabled');
+        reset.setAttribute('disabled', '');
+        b.classList.add('reloading');
+      } else {
+        inputURL.removeAttribute('disabled');
+        reload.removeAttribute('disabled');
+        benchmark.removeAttribute('disabled', '');
+        stop.setAttribute('disabled', '');
+        reset.removeAttribute('disabled');
+        b.classList.remove('reloading');
+      }
+      resize();
+    }, t0 = 0, t1 = 0, dt = 0, results = [], spread = 0, goodResults = [],
+    avgValid = false, loading = false, benchmarking = false,
+    stddev = function stddev(vv) {
+      var vvlen = vv.length, i = vvlen, v, u = 0, s = 0;
+      while (i--) u += vv[i];
+      u /= vvlen;
+      for (i = vvlen; i--;) {
+        v = vv[i] - u;
+        s += v * v;
+      }
+      return {u: u, s: M.sqrt(s / vvlen)};
+    },
+    diff = function diff(a, b) { return (a - b) || 0; },
+    goodAverage = function goodAverage() {
+      var r1 = stddev(results), r2, l = r1.u - r1.s, h = r1.u + r1.s, v, i;
+      goodResults.length = 0;
+      for (i = results.length; i--;) {
+        v = results[i];
+        if (v >= l && v <= h) goodResults.push(v);
+      }
+      goodResults = goodResults.sort(diff).slice(0, 11);
+      r2 = stddev(goodResults);
+      spread = r2.s / r2.u;
+      avgValid = goodResults.length >= 11 && spread <= 0.10;
+      return r2.u;
+    },
+    resetResults = function resetResults() {
+      t0 = t1 = dt = 0;
+      results.length = 0;
+      reportResults();
+    },
+    recordResult = function recordResult() {
+      t1 = now();
+      dt = t1 - t0;
+      results.push(dt);
+      reportResults();
+    },
+    reportResults = function reportResults() {
+      var elem = d.getElementById('lastTime'), v = goodAverage(),
+        count = results.length, progress;
+      elem.textContent = dt ? dt.toFixed(2) : '?';
+      elem = d.getElementById('avgTime');
+      elem.textContent = v ? v.toFixed(2) : '?';
+      elem = d.getElementById('isValid');
+      elem.classList.toggle('valid', avgValid);
+      elem.textContent = avgValid ? 'valid' : 'invalid';
+      elem = d.getElementById('normalCount');
+      elem.textContent = goodResults.length ? goodResults.length : '?';
+      elem = d.getElementById('totalCount');
+      elem.textContent = count ? count : '?';
+      if (!benchmarking) return;
+      progress = M.min(goodResults.length / 11, 1.0) *
+                 M.min(1.0 - spread, 0.9) / 0.9 * 100;
+      d.querySelector('#progress > div').style.setProperty('width', progress + '%');
+    }, reIsHTTP = /^[a-z]+:\/\//, reHasWordChar = /\w/,
+    stopAll = function stopAll() {
+      stopBenchmarking();
+      stopLoading();
+      syncWidgets();
+    }, benchmarkTimer = null,
+    benchmarkTimerHandler = function benchmarkTimerHandler() {
+      benchmarkTimer = null;
+      startLoading();
+    },
+    startBenchmarking = function startBenchmarking() {
+      if (benchmarking) return;
+      resetResults();
+      benchmarking = true;
+      b.classList.add('benchmarking');
+      startLoading();
+    },
+    stopBenchmarking = function stopBenchmarking() {
+      if (benchmarkTimer !== null) {
+        clearTimeout(benchmarkTimer);
+        benchmarkTimer = null;
+      }
+      if (!benchmarking) return;
+      benchmarking = false;
+      b.classList.remove('benchmarking');
+      d.querySelector('#progress > div').style.setProperty('width', '0%');
+    }, loadTimer = null,
+    loadTimerHandler = function loadTimerHandler() {
+      loadTimer = null;
+      stopLoading();
+    },
+    startLoading = function startLoading() {
+      if (loading) return;
+      loading = true;
+      syncWidgets();
+      var url = inputURL.value;
+      if (reHasWordChar.test(url) && reIsHTTP.test(url) === false) {
+        alink.href = 'http://' + url;
+        url = alink.href;
+        inputURL.value = url;
+      }
+      if (url !== lastURL) {
+        resetResults();
+        lastURL = url;
+      }
+      loadTimer = setTimeout(loadTimerHandler, 30000);
+      t0 = now();
+      p.setAttribute('src', url);
+    },
+    stopLoading = function stopLoading() {
+      if (loadTimer !== null) {
+        clearTimeout(loadTimer);
+        loadTimer = null;
+      }
+      if (!loading) return;
+      loading = false;
+      if (benchmarking) {
+        if (!avgValid) {
+          benchmarkTimer = setTimeout(benchmarkTimerHandler,
+            M.ceil(M.min(M.max(dt * 10, 1000), 5000))
+          );
+          return;
+        }
+        stopBenchmarking();
+      }
+      syncWidgets();
+    },
+    onPageLoaded = function onPageLoaded() {
+      if (loading) recordResult();
+      stopLoading();
+    }, now;
+  if (w.performance == null || typeof w.performance.now !== 'function') {
+    if (typeof D.now === 'function') now = D.now;
+    else now = function now() { return +(new D()); };
+  } else now = performance.now.bind(performance);
+  resize();
+  reload.addEventListener('click', startLoading, false);
+  p.addEventListener('load', onPageLoaded, false);
+  benchmark.addEventListener('click', startBenchmarking, false);
+  stop.addEventListener('click', stopAll, false);
+  reset.addEventListener('click', function () {
+    resetResults();
+    syncWidgets();
+  }, false);
+  w.addEventListener('resize', resizeFrame, false);
+})(window, document, Math, Date);//--><!]]></script>
+</body>
+</html>
