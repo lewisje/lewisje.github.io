@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/lewisje
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://lewisje.github.io
+  * I am lewisje (https://keybase.io/lewisje) on keybase.
+  * I have a public key ASCMAUXVxmtQRyrx40JOErH18pznSvs4snXEkDzo4-SLKQo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "01208c0145d5c66b50472af1e3424e12b1f5f29ce74afb38b275c4903ce8e3e48b290a",
+      "host": "keybase.io",
+      "kid": "01208c0145d5c66b50472af1e3424e12b1f5f29ce74afb38b275c4903ce8e3e48b290a",
+      "uid": "09acaf3231ed7d49d4c437cdb4c96819",
+      "username": "lewisje"
+    },
+    "merkle_root": {
+      "ctime": 1575685449,
+      "hash": "a5ebd0ace271e235849f09ce540421f203329b9aece0feb23badee816f0a80b5808a3ae512b7a6be360ce70285dacabeb8042689a35376741626dbba66e75092",
+      "hash_meta": "0f86f76f4cd6061451c00477860bc1edfadd2d1d2c93bdf8fb5892b19a567ec7",
+      "seqno": 12606891
+    },
+    "service": {
+      "entropy": "4AfRNprZxNeQwObE5jGhUiiF",
+      "hostname": "lewisje.github.io",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "5.0.0"
+  },
+  "ctime": 1575685461,
+  "expire_in": 504576000,
+  "prev": "6cfbf1f0a6d0b0f0d9d97b97c693546bfb3994a94dc7837f5563e334ce092264",
+  "seqno": 14,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgjAFF1cZrUEcq8eNCThKx9fKc50r7OLJ1xJA86OPkiykKp3BheWxvYWTESpcCDsQgbPvx8KbQsPDZ2XuXxpNUa/s5lKlNx4N/VWPjNM4JImTEIJuiqtg10FulPEAwxb323kUjYfpkTRi+WwTbxLnqr0twAgHCo3NpZ8RAGgW2LKGGBgC6zF6GknhY7FLw0GBvj1D1l8Ph4BRT2nvL6Xb3jG/Ieu/oQTDv/b6ebslZ3ktJ2VAqcpGPscL7BKhzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIDG4Pheb1uh6foyK3i2tOdUSQhN6uy7T4roki7Y+GKE2o3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/lewisje
+
+==================================================================
